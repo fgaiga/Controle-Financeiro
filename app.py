@@ -40,6 +40,11 @@ if st.session_state.get("resetar_lancamento"):
     for campo, valor in valores_padrao.items():
         st.session_state[campo] = valor
     st.session_state.resetar_lancamento = False
+    st.success("Lançamento salvo com sucesso!")
+    if hasattr(st, 'rerun'):
+        st.rerun()
+    else:
+        st.experimental_rerun()
 
 # Título
 st.title("Controle Financeiro Pessoal - Francisco e Renata")
@@ -93,11 +98,5 @@ with aba1:
                 }
                 st.session_state.transacoes.append(nova_transacao)
                 st.session_state.resetar_lancamento = True
-
-                # Compatível com versões novas e antigas do Streamlit
-                if hasattr(st, 'rerun'):
-                    st.rerun()
-                else:
-                    st.experimental_rerun()
             else:
                 st.warning("O valor precisa ser maior que zero.")
