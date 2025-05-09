@@ -21,27 +21,6 @@ if 'categorias' not in st.session_state:
         "Distribuição Lucro", "Baixa Investimento", "Seguros"
     ]
 
-# Estado padrão dos campos de lançamento
-valores_padrao = {
-    'pessoa_manual': 'Francisco',
-    'tipo_manual': 'Despesa',
-    'categoria_manual': st.session_state.categorias[0],
-    'valor_manual': 0.0,
-    'conta_manual': 'Conta Corrente Francisco',
-    'data_manual': datetime.today(),
-    'descricao_manual': ''
-}
-
-if st.session_state.get("resetar"):
-    for campo, valor in valores_padrao.items():
-        st.session_state[campo] = valor
-    st.session_state.resetar = False
-    st.success("Lançamento salvo com sucesso!")
-
-for campo, valor in valores_padrao.items():
-    if campo not in st.session_state:
-        st.session_state[campo] = valor
-
 # Título
 st.title("Controle Financeiro Pessoal - Francisco e Renata")
 
@@ -68,19 +47,19 @@ with aba1:
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        pessoa = st.selectbox("Pessoa", ["Francisco", "Renata"], key="pessoa_manual")
-        tipo = st.selectbox("Tipo", ["Receita", "Despesa"], key="tipo_manual")
-        categoria = st.selectbox("Categoria", st.session_state.categorias, key="categoria_manual")
+        pessoa = st.selectbox("Pessoa", ["Francisco", "Renata"])
+        tipo = st.selectbox("Tipo", ["Receita", "Despesa"])
+        categoria = st.selectbox("Categoria", st.session_state.categorias)
     with col2:
-        valor = st.number_input("Valor (R$)", min_value=0.0, step=0.01, format="%.2f", key="valor_manual")
+        valor = st.number_input("Valor (R$)", min_value=0.0, step=0.01, format="%.2f")
         conta = st.selectbox("Conta", [
             "Conta Corrente Francisco", "Conta Corrente Renata",
             "Cartão de Crédito Francisco", "Cartão de Crédito Renata",
             "Investimento Francisco", "Investimento Renata"
-        ], key="conta_manual")
-        data = st.date_input("Data", value=st.session_state['data_manual'], key="data_manual")
+        ])
+        data = st.date_input("Data", value=datetime.today())
     with col3:
-        descricao = st.text_input("Descrição", key="descricao_manual")
+        descricao = st.text_input("Descrição")
         if st.button("Salvar Lançamento"):
             if valor > 0:
                 nova_transacao = {
@@ -93,6 +72,13 @@ with aba1:
                     "Descrição": descricao
                 }
                 st.session_state.transacoes.append(nova_transacao)
-                st.session_state.resetar = True
+                st.success("Lançamento salvo com sucesso!")
             else:
                 st.warning("O valor precisa ser maior que zero.")
+
+    if st.session_state.transacoes:
+        st.subheader("Lançamentos Realizados")
+        df = pd.DataFrame(st.session_state.transacoes)
+        st.dataframe(df, use_container_width=True)
+    else:
+        st.info("Nenhum lançamento registrado ainda.")
