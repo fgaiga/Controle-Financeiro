@@ -21,8 +21,8 @@ if 'categorias' not in st.session_state:
         "Distribuição Lucro", "Baixa Investimento", "Seguros"
     ]
 
-# Estado padrão dos campos
-for campo, valor_padrao in {
+# Estado padrão dos campos de lançamento
+valores_padrao = {
     'pessoa_manual': 'Francisco',
     'tipo_manual': 'Despesa',
     'categoria_manual': st.session_state.categorias[0],
@@ -30,9 +30,10 @@ for campo, valor_padrao in {
     'conta_manual': 'Conta Corrente Francisco',
     'data_manual': datetime.today(),
     'descricao_manual': ''
-}.items():
+}
+for campo, valor in valores_padrao.items():
     if campo not in st.session_state:
-        st.session_state[campo] = valor_padrao
+        st.session_state[campo] = valor
 
 # Título
 st.title("Controle Financeiro Pessoal - Francisco e Renata")
@@ -87,13 +88,8 @@ with aba1:
                 st.session_state.transacoes.append(nova_transacao)
 
                 # Resetar campos após salvar
-                st.session_state.pessoa_manual = 'Francisco'
-                st.session_state.tipo_manual = 'Despesa'
-                st.session_state.categoria_manual = st.session_state.categorias[0]
-                st.session_state.valor_manual = 0.0
-                st.session_state.conta_manual = 'Conta Corrente Francisco'
-                st.session_state.data_manual = datetime.today()
-                st.session_state.descricao_manual = ''
+                for campo, valor in valores_padrao.items():
+                    st.session_state[campo] = valor
 
                 st.success("Lançamento salvo com sucesso!")
             else:
