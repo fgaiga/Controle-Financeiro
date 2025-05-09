@@ -31,6 +31,13 @@ valores_padrao = {
     'data_manual': datetime.today(),
     'descricao_manual': ''
 }
+
+if st.session_state.get("resetar"):
+    for campo, valor in valores_padrao.items():
+        st.session_state[campo] = valor
+    st.session_state.resetar = False
+    st.success("Lançamento salvo com sucesso!")
+
 for campo, valor in valores_padrao.items():
     if campo not in st.session_state:
         st.session_state[campo] = valor
@@ -86,11 +93,6 @@ with aba1:
                     "Descrição": descricao
                 }
                 st.session_state.transacoes.append(nova_transacao)
-                # Resetar campos manualmente
-                st.session_state['valor_manual'] = 0.0
-                st.session_state['descricao_manual'] = ''
-                st.session_state['categoria_manual'] = st.session_state.categorias[0]
-                st.session_state['data_manual'] = datetime.today()
-                st.success("Lançamento salvo com sucesso!")
+                st.session_state.resetar = True
             else:
                 st.warning("O valor precisa ser maior que zero.")
