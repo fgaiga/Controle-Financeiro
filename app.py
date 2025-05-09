@@ -20,8 +20,6 @@ if 'categorias' not in st.session_state:
         "Viagens", "Combustível", "Financiamentos", "Investimentos",
         "Distribuição Lucro", "Baixa Investimento", "Seguros"
     ]
-if 'novo_lancamento' not in st.session_state:
-    st.session_state.novo_lancamento = None
 
 # Estado padrão dos campos de lançamento
 valores_padrao = {
@@ -36,18 +34,6 @@ valores_padrao = {
 for campo, valor in valores_padrao.items():
     if campo not in st.session_state:
         st.session_state[campo] = valor
-
-# Executa novo lançamento, se marcado
-if st.session_state.novo_lancamento:
-    st.session_state.transacoes.append(st.session_state.novo_lancamento)
-    for campo, valor in valores_padrao.items():
-        st.session_state[campo] = valor
-    st.session_state.novo_lancamento = None
-    st.success("Lançamento salvo com sucesso!")
-    if hasattr(st, 'rerun'):
-        st.rerun()
-    else:
-        st.experimental_rerun()
 
 # Título
 st.title("Controle Financeiro Pessoal - Francisco e Renata")
@@ -90,7 +76,7 @@ with aba1:
         descricao = st.text_input("Descrição", key="descricao_manual")
         if st.button("Salvar Lançamento"):
             if valor > 0:
-                st.session_state.novo_lancamento = {
+                nova_transacao = {
                     "Pessoa": pessoa,
                     "Tipo": tipo,
                     "Categoria": categoria,
@@ -99,9 +85,12 @@ with aba1:
                     "Data": data,
                     "Descrição": descricao
                 }
-                if hasattr(st, 'rerun'):
-                    st.rerun()
-                else:
-                    st.experimental_rerun()
+                st.session_state.transacoes.append(nova_transacao)
+                # Resetar campos manualmente
+                st.session_state['valor_manual'] = 0.0
+                st.session_state['descricao_manual'] = ''
+                st.session_state['categoria_manual'] = st.session_state.categorias[0]
+                st.session_state['data_manual'] = datetime.today()
+                st.success("Lançamento salvo com sucesso!")
             else:
                 st.warning("O valor precisa ser maior que zero.")
