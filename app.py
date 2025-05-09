@@ -35,6 +35,9 @@ for campo, valor in valores_padrao.items():
     if campo not in st.session_state:
         st.session_state[campo] = valor
 
+def resetar_campos_lancamento():
+    st.session_state.update(valores_padrao)
+
 # Título
 st.title("Controle Financeiro Pessoal - Francisco e Renata")
 
@@ -86,11 +89,7 @@ with aba1:
                     "Descrição": descricao
                 }
                 st.session_state.transacoes.append(nova_transacao)
-
-                # Resetar campos após salvar
-                for campo, valor in valores_padrao.items():
-                    st.session_state[campo] = valor
-
+                resetar_campos_lancamento()
                 st.success("Lançamento salvo com sucesso!")
             else:
                 st.warning("O valor precisa ser maior que zero.")
