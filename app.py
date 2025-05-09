@@ -93,6 +93,11 @@ with aba1:
                 }
                 st.session_state.transacoes.append(nova_transacao)
                 st.session_state.resetar_lancamento = True
-                st.experimental_rerun()
+
+                # Compatível com versões novas e antigas do Streamlit
+                if hasattr(st, 'rerun'):
+                    st.rerun()
+                else:
+                    st.experimental_rerun()
             else:
                 st.warning("O valor precisa ser maior que zero.")
