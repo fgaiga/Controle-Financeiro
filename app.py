@@ -1,4 +1,4 @@
-... # trecho anterior mantido
+# trecho anterior mantido
 
 # Aba de Resumo Mensal
 with aba2:
