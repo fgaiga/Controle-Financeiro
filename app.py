@@ -14,6 +14,8 @@ if 'cartoes' not in st.session_state:
     ]
 if 'gastos_cartao' not in st.session_state:
     st.session_state.gastos_cartao = []
+if 'categorias' not in st.session_state:
+    st.session_state.categorias = ["Alimentação", "Transporte", "Moradia", "Educação", "Saúde", "Lazer"]
 
 # Título
 st.title("Controle Financeiro Pessoal - Francisco e Renata")
@@ -24,14 +26,28 @@ aba1, aba2, aba3, aba4 = st.tabs(["Lançamentos", "Resumo Mensal", "Exportar Dad
 # Aba de Lançamentos
 with aba1:
     st.header("Novo Lançamento")
+
+    with st.expander("Cadastrar nova categoria"):
+        nova_categoria = st.text_input("Nome da nova categoria")
+        if st.button("Adicionar categoria"):
+            if nova_categoria and nova_categoria not in st.session_state.categorias:
+                st.session_state.categorias.append(nova_categoria)
+                st.success("Categoria adicionada com sucesso!")
+            else:
+                st.warning("Categoria inválida ou já existente.")
+
     col1, col2, col3 = st.columns(3)
     with col1:
         pessoa = st.selectbox("Pessoa", ["Francisco", "Renata"], key="pessoa_manual")
         tipo = st.selectbox("Tipo", ["Receita", "Despesa"], key="tipo_manual")
-        categoria = st.text_input("Categoria", key="categoria_manual")
+        categoria = st.selectbox("Categoria", st.session_state.categorias, key="categoria_manual")
     with col2:
         valor = st.number_input("Valor (R$)", min_value=0.0, step=0.01, format="%.2f", key="valor_manual")
-        conta = st.selectbox("Conta", ["Conta Corrente", "Cartão de Crédito", "Investimento"], key="conta_manual")
+        conta = st.selectbox("Conta", [
+            "Conta Corrente Francisco", "Conta Corrente Renata",
+            "Cartão de Crédito Francisco", "Cartão de Crédito Renata",
+            "Investimento Francisco", "Investimento Renata"
+        ], key="conta_manual")
         data = st.date_input("Data", value=datetime.today(), key="data_manual")
     with col3:
         descricao = st.text_input("Descrição", key="descricao_manual")
@@ -60,7 +76,11 @@ with aba1:
                 col1, col2 = st.columns(2)
                 with col1:
                     pessoa_csv = st.selectbox("Pessoa para todos os lançamentos", ["Francisco", "Renata"], key="pessoa_csv")
-                    conta_csv = st.selectbox("Conta para todos os lançamentos", ["Conta Corrente", "Cartão de Crédito", "Investimento"], key="conta_csv")
+                    conta_csv = st.selectbox("Conta para todos os lançamentos", [
+                        "Conta Corrente Francisco", "Conta Corrente Renata",
+                        "Cartão de Crédito Francisco", "Cartão de Crédito Renata",
+                        "Investimento Francisco", "Investimento Renata"
+                    ], key="conta_csv")
                 with col2:
                     tipo_csv = st.selectbox("Tipo padrão", ["Detectar pelo valor (+/-)", "Receita", "Despesa"], key="tipo_csv")
                 if st.button("Importar lançamentos"):
@@ -103,8 +123,11 @@ with aba2:
         st.dataframe(resumo, use_container_width=True)
 
         st.subheader("Gráfico por Tipo")
-        grafico = resumo.pivot_table(index='Mês', columns=['Pessoa', 'Tipo'], values='Valor (R$)', aggfunc='sum')
-        st.line_chart(grafico)
+        if not resumo.empty:
+            grafico = resumo.pivot_table(index='Mês', columns=['Pessoa', 'Tipo'], values='Valor (R$)', aggfunc='sum')
+            st.line_chart(grafico)
+        else:
+            st.info("Ainda não há dados suficientes para gerar o gráfico.")
     else:
         st.info("Nenhum dado lançado ainda.")
 
