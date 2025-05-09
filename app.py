@@ -20,6 +20,8 @@ if 'categorias' not in st.session_state:
         "Viagens", "Combustível", "Financiamentos", "Investimentos",
         "Distribuição Lucro", "Baixa Investimento", "Seguros"
     ]
+if 'novo_lancamento' not in st.session_state:
+    st.session_state.novo_lancamento = None
 
 # Estado padrão dos campos de lançamento
 valores_padrao = {
@@ -35,11 +37,12 @@ for campo, valor in valores_padrao.items():
     if campo not in st.session_state:
         st.session_state[campo] = valor
 
-# Reset seguro via flag
-if st.session_state.get("resetar_lancamento"):
+# Executa novo lançamento, se marcado
+if st.session_state.novo_lancamento:
+    st.session_state.transacoes.append(st.session_state.novo_lancamento)
     for campo, valor in valores_padrao.items():
         st.session_state[campo] = valor
-    st.session_state.resetar_lancamento = False
+    st.session_state.novo_lancamento = None
     st.success("Lançamento salvo com sucesso!")
     if hasattr(st, 'rerun'):
         st.rerun()
@@ -87,7 +90,7 @@ with aba1:
         descricao = st.text_input("Descrição", key="descricao_manual")
         if st.button("Salvar Lançamento"):
             if valor > 0:
-                nova_transacao = {
+                st.session_state.novo_lancamento = {
                     "Pessoa": pessoa,
                     "Tipo": tipo,
                     "Categoria": categoria,
@@ -96,7 +99,9 @@ with aba1:
                     "Data": data,
                     "Descrição": descricao
                 }
-                st.session_state.transacoes.append(nova_transacao)
-                st.session_state.resetar_lancamento = True
+                if hasattr(st, 'rerun'):
+                    st.rerun()
+                else:
+                    st.experimental_rerun()
             else:
                 st.warning("O valor precisa ser maior que zero.")
